@@ -67,7 +67,7 @@ g.append("g")
 var yAxis = d3.axisLeft(y)
 
 g.append("g")
-	.attr("class", "x-axis")
+	.attr("class", "y-axis")
 	.call(yAxis)
 
 // Year
@@ -83,16 +83,57 @@ var year = g.append("text")
 var transition = d3.transition()
 	.duration(100);
 
+var continents = ["asia","africa","americas","europe"];
+
+// Legends
+var legends = g.append("g")
+	.attr("class","legend")
+
+legends.selectAll("circle")
+	.data(continents)
+	.enter()
+	.append("circle")
+	.attr("r",5)
+	.attr("fill",function(d){
+		return continentColor(d)
+	})
+	.attr("cx",function(d,i){
+		return i*150+50
+	})
+	.attr("cy",function(d,i){
+		return 5
+	})
+
+legends.selectAll("text")
+	.data(continents)
+	.enter()
+	.append("text")
+	.attr("x",function(d,i){
+		return i*150+75
+	})
+	.attr("y",function(d,i){
+		return 5
+	})
+	.attr("text-anchor","start")
+	.attr("alignment-baseline","middle")
+	.text(function(d){
+		return d
+	})
+
+
+// Plots
+var plots = g.append("g")
+	.attr("class","plots");
 
 
 
 d3.json("data/data.json").then(function (data) {
 	let i = -1;
 	d3.interval(function () {
-		i === data.length ? i = 0 : i++
+		i === data.length-1 ? i = 0 : i++
 
 		updateGraph(data[i]);
-	}, 100);
+	}, 300);
 
 	updateGraph(data[0]);
 })
@@ -107,7 +148,7 @@ const updateGraph = (data) => {
 		return country;
 	})
 
-	var circles = g.selectAll("circle")
+	var circles = plots.selectAll("circle")
 		.data(activeCountries, function (d) {
 			return d.country
 		})
@@ -132,6 +173,4 @@ const updateGraph = (data) => {
 			return y(d.life_exp)
 		})
 		.attr("r", function (d) { return Math.sqrt(area(d.population) / Math.PI) })
-
-
 }
